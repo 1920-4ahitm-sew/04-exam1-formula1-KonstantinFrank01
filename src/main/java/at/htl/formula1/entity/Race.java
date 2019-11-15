@@ -10,6 +10,7 @@ import java.time.LocalDate;
  *
  * The id's are not assigned by the database. The id's are given.
  */
+@Entity
 public class Race {
 
     private Long id;
