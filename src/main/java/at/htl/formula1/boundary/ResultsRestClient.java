@@ -5,9 +5,7 @@ import at.htl.formula1.entity.Race;
 import at.htl.formula1.entity.Result;
 import at.htl.formula1.entity.Team;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
+import javax.json.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
@@ -36,6 +34,10 @@ public class ResultsRestClient {
     public void readResultsFromEndpoint() {
         Response response = this.target.request(MediaType.APPLICATION_JSON).get();
         JsonArray payload = response.readEntity(JsonArray.class);
+        /*for (JsonValue item : payload) {
+            JsonObject resultJson = Json.createObjectBuilder().build();
+            resultJson.
+        }*/
         JsonObject object = payload.getJsonObject(0);
         persistResult(payload);
     }
@@ -65,6 +67,8 @@ public class ResultsRestClient {
         List<JsonObject> values = resultsJson.getValuesAs(JsonObject.class);
         for (JsonObject value : values) {
             System.out.println(value);
+            //JsonObject resultJson = Json.createObjectBuilder().build();
+
             /**
              * Aufgabe 2: Import REST
              *
