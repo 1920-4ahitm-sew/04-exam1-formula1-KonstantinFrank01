@@ -7,6 +7,7 @@ import javax.persistence.*;
  * <p>
  * The id's are  assigned by the database.
  */
+@Entity
 public class Driver {
 
     private Long id;
