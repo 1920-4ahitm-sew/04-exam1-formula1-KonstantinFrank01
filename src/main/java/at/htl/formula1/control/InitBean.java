@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Stream;
 
 @ApplicationScoped
@@ -80,17 +81,33 @@ public class InitBean {
      * @param teamFileName
      */
     private void readTeamsAndDriversFromFile(String teamFileName) {
-        /*try {
-            BufferedReader br = new BufferedReader((new InputStreamReader(getClass().getResourceAsStream("/teams.csv"))));
-            String line;
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/teams.csv")));
             br.readLine();
-            while ((line = br.readLine()) != null) {
-                String[] rowCell = line.split(";");
-
+            String line2;
+            while ((line2 = br.readLine()) != null) {
+                String[] rowCell = line2.split(";");
+                Driver d = new Driver();
+                Team t = new Team();
+                d.setName(rowCell[1]);
+                d.setName(rowCell[2]);
+                em.persist(d);
+                em.persist(new Team(rowCell[0]));
+                /*List<Driver> driver = this.em.createNamedQuery("Driver.getDriverByName", Driver.class)
+                        .setParameter("NAME", rowCell[1])
+                        .setParameter("NAME", rowCell[2])
+                        .getResultList();
+                Driver currentDriver;
+                /*if (driver.size() != 1) {
+                    currentDriver = new Driver(currentDriver.setName(rowCell[1]));
+                    em.persist(currentDriver);
+                } else {
+                    currentDriver = driver.get(0);
+                }*/
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     /**
