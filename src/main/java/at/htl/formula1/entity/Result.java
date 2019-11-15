@@ -1,6 +1,7 @@
 package at.htl.formula1.entity;
 
 import javax.persistence.*;
+import javax.ws.rs.Path;
 
 /**
  * Formula1 - Result
@@ -8,6 +9,12 @@ import javax.persistence.*;
  * The id's are assigned by the database.
  */
 @Entity
+@NamedQueries({
+        @NamedQuery(
+                name = "Result.winnerOfRace",
+                query = "select r from Result r"
+        )
+})
 public class Result {
 
     @Transient

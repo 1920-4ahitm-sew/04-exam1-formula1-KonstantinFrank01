@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-
+@Path("results")
 public class ResultsEndpoint {
 
 
@@ -29,7 +29,11 @@ public class ResultsEndpoint {
      * @param id des Rennens
      * @return
      */
-    public Response findWinnerOfRace(long id) {
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("winner/{id}")
+    public Response findWinnerOfRace(@PathParam("id") long id) {
+
         return null;
     }
 

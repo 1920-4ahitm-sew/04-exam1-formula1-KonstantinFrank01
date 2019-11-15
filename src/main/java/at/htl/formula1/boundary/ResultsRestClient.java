@@ -71,10 +71,10 @@ public class ResultsRestClient {
              * Als zweite Aufgabe sollen die Ergebnisse (Result) von einem gegebenen REST-Endpoint eingelesen werden.
              * Implementieren Sie hierfür die Klasse ResultRestClient:
              */
-            Race race = new Race(race.getId(), race.getCountry(), value.getString("raceNo"));
+            //Race race = new Race(race.getId(), race.getCountry(), value.getString("raceNo"));
             Team team = new Team();
             Driver driver = new Driver(value.getString("driverFullName"), team);
-            em.persist(new Result(race, value.getInt("position"), driver));
+            //em.persist(new Result(race, value.getInt("position"), driver));
         }
     }
 
