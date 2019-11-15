@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Entity
 public class Race {
 
+    @Id
     private Long id;
     private String country;
     private LocalDate date;
@@ -53,7 +54,6 @@ public class Race {
         this.date = date;
     }
     //endregion
-
 
     @Override
     public String toString() {

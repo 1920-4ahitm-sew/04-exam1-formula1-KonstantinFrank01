@@ -38,7 +38,7 @@ public class InitBean {
     @Inject
     ResultsRestClient client;
 
-
+    @Transactional
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
 
         readTeamsAndDriversFromFile(TEAM_FILE_NAME);
@@ -60,8 +60,11 @@ public class InitBean {
             while ((line = buffread.readLine()) != null) {
                 String rowCell[] = line.split(";");
                 Race race = new Race();
+                race.setId(Long.parseLong(rowCell[0]));
                 race.setCountry(rowCell[1]);
-                race.setDate(LocalDate.parse(rowCell[2]));
+                //System.out.println(LocalDate.parse(rowCell[2]));
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+                race.setDate(LocalDate.parse(rowCell[2], formatter));
                 em.persist(race);
             }
         } catch (IOException e) {
@@ -77,7 +80,7 @@ public class InitBean {
      * @param teamFileName
      */
     private void readTeamsAndDriversFromFile(String teamFileName) {
-        try {
+        /*try {
             BufferedReader br = new BufferedReader((new InputStreamReader(getClass().getResourceAsStream("/teams.csv"))));
             String line;
             br.readLine();
@@ -87,7 +90,7 @@ public class InitBean {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     /**
