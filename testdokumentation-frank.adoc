@@ -2,6 +2,7 @@
 
 == Aufgabe 1: Import CSV
 
+[source, java]
 ----
 try {
             BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/teams.csv")));
@@ -49,4 +50,60 @@ Die Methode persistTeamAndDrivers sollte wie folgt aussehen:
 [source, java]
 ----
 include::src/main/java/at/htl/formula1/control/InitBean.java[tags=persistTeamAndDrivers]
+----
+
+Bei den Entity-Klassen habe ich auch die Table-Annotation vergessen.
+Diese sieht beispielsweise für die Entität Driver so aus:
+
+[source, java]
+----
+@Table(name = "F1_DRIVER")
+----
+
+== Aufgabe 2: Import REST
+
+[source, java]
+----
+public void readResultsFromEndpoint() {
+        Response response = this.target.request(MediaType.APPLICATION_JSON).get();
+        JsonArray payload = response.readEntity(JsonArray.class);
+        /*for (JsonValue item : payload) {
+            JsonObject resultJson = Json.createObjectBuilder().build();
+            resultJson.
+        }*/
+        JsonObject object = payload.getJsonObject(0);
+        persistResult(payload);
+    }
+
+@Transactional
+void persistResult(JsonArray resultsJson) {
+        JsonObject object = resultsJson.getJsonObject(0);
+        List<JsonObject> values = resultsJson.getValuesAs(JsonObject.class);
+        for (JsonObject value : values) {
+            System.out.println(value);
+            //JsonObject resultJson = Json.createObjectBuilder().build();
+            //Race race = new Race(race.getId(), race.getCountry(), value.getString("raceNo"));
+            Team team = new Team();
+            Driver driver = new Driver(value.getString("driverFullName"), team);
+            //em.persist(new Result(race, value.getInt("position"), driver));
+        }
+    }
+----
+
+Hier war ich so weit, dass ich mir die Daten vom REST-Service in der Konsole ausgeben lassen konnte,
+ich habe es aber nicht geschafft diese Daten richtig in die Datenbank zu speichern.
+
+In der Methode readResultsFromEndpoint() habe ich eine unnötige Zeile Code geschrieben
+und zwar:
+
+[source, java]
+----
+JsonObject object = payload.getJsonObject(0);
+----
+
+Der verbesserte Code der Methode persistResult(JsonArray resultsJson) sieht wie folgt aus:
+
+[source, java]
+----
+include::src/main/java/at/htl/formula1/boundary/ResultsRestClient.java[tags=persistResults]
 ----

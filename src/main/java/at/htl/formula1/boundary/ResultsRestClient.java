@@ -31,6 +31,7 @@ public class ResultsRestClient {
      * Vom RestEndpoint werden alle Result abgeholt und in ein JsonArray gespeichert.
      * Dieses JsonArray wird an die Methode persistResult(...) übergeben
      */
+    // tag::readResults[]
     public void readResultsFromEndpoint() {
         Response response = this.target.request(MediaType.APPLICATION_JSON).get();
         JsonArray payload = response.readEntity(JsonArray.class);
@@ -38,9 +39,10 @@ public class ResultsRestClient {
             JsonObject resultJson = Json.createObjectBuilder().build();
             resultJson.
         }*/
-        JsonObject object = payload.getJsonObject(0);
+        //JsonObject object = payload.getJsonObject(0);
         persistResult(payload);
     }
+    // end::readResults[]
 
     /**
      * Das JsonArray wird durchlaufen (iteriert). Man erhäjt dabei Objekte vom
@@ -61,25 +63,22 @@ public class ResultsRestClient {
      *
      * @param resultsJson
      */
+    // tag::persistResults[]
     @Transactional
     void persistResult(JsonArray resultsJson) {
-        JsonObject object = resultsJson.getJsonObject(0);
-        List<JsonObject> values = resultsJson.getValuesAs(JsonObject.class);
-        for (JsonObject value : values) {
-            System.out.println(value);
-            //JsonObject resultJson = Json.createObjectBuilder().build();
-
-            /**
-             * Aufgabe 2: Import REST
-             *
-             * Als zweite Aufgabe sollen die Ergebnisse (Result) von einem gegebenen REST-Endpoint eingelesen werden.
-             * Implementieren Sie hierfür die Klasse ResultRestClient:
-             */
-            //Race race = new Race(race.getId(), race.getCountry(), value.getString("raceNo"));
-            Team team = new Team();
-            Driver driver = new Driver(value.getString("driverFullName"), team);
-            //em.persist(new Result(race, value.getInt("position"), driver));
+        for (JsonValue value : resultsJson) {
+            JsonObject resultJson = value.asJsonObject();
+            Driver driver = em
+                    .createNamedQuery("Driver.getDriverByName", Driver.class)
+                    .setParameter("NAME", resultJson.getString("driverFullName"))
+                    .getSingleResult();
+            Race race = em
+                    .createQuery("select r from Race r where r.id = :ID", Race.class)
+                    .setParameter("ID", Long.valueOf(resultJson.getInt("raceNo")))
+                    .getSingleResult();
+            em.persist(new Result(race, resultJson.getInt("position"), driver));
         }
     }
+    // end::persistResults[]
 
 }
