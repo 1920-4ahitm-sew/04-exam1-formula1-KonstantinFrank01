@@ -9,6 +9,7 @@ import javax.ws.rs.Path;
  * The id's are assigned by the database.
  */
 @Entity
+@Table(name = "F1_RESULT")
 @NamedQueries({
         @NamedQuery(
                 name = "Result.winnerOfRace",

@@ -9,6 +9,7 @@ import javax.persistence.*;
  */
 
 @Entity
+@Table(name = "F1_DRIVER")
 @NamedQueries({
         @NamedQuery(
                 name = "Driver.getDriverByName",
