@@ -107,3 +107,28 @@ Der verbesserte Code der Methode persistResult(JsonArray resultsJson) sieht wie 
 ----
 include::src/main/java/at/htl/formula1/boundary/ResultsRestClient.java[tags=persistResults]
 ----
+
+== Aufgabe 3: Gesamtpunkte eines Fahrers
+
+Hierzu bin ich gar nicht mehr gekommen, weil ich keine Daten in der Tabelle Result hatte.
+Jetzt habe ich eine NamedQuery hinzugefügt, welche die Gesamtpunktezahl für einen bestimmten Fahrer
+zurückgibt.
+
+[source, java]
+----
+include::src/main/java/at/htl/formula1/entity/Result.java[tags=sumQuery]
+----
+
+Zuerst muss ich in der Endpoint-Klasse einen EntityManager erstellen.
+[source,java]
+----
+@PersistenceContext
+EntityManager em;
+----
+Zusätzlich muss noch die Methode getSumPointsOfDriver im ResultsEndpoint implementiert werden.
+
+Das sieht dann wie folgt aus:
+[source, java]
+----
+include::src/main/java/at/htl/formula1/boundary/ResultsEndpoint.java[tags=getPointsSumForDriver]
+----
