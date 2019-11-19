@@ -8,6 +8,13 @@ import javax.persistence.*;
  * The id's are assigned by the database.
  */
 @Entity
+@Table(name = "F1_TEAM")
+@NamedQueries({
+        @NamedQuery(
+                name = "Team.findByName",
+                query = "select t from Team t where t.name = :NAME"
+        )
+})
 public class Team {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
