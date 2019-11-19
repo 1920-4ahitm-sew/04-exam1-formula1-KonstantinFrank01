@@ -15,10 +15,12 @@ import javax.ws.rs.Path;
                 name = "Result.winnerOfRace",
                 query = "select r from Result r"
         ),
+        // tag::sumQuery[]
         @NamedQuery(
                 name = "Result.sumPointsForDriver",
                 query = "select sum(r.points) from Result r where r.driver.name = :NAME"
         )
+        // end::sumQuery[]
 })
 public class Result {
 
