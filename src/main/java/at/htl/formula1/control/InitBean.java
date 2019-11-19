@@ -80,35 +80,18 @@ public class InitBean {
      *
      * @param teamFileName
      */
+    // tag::readTeamsAndDrivers[]
     private void readTeamsAndDriversFromFile(String teamFileName) {
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/teams.csv")));
-            br.readLine();
-            String line2;
-            while ((line2 = br.readLine()) != null) {
-                String[] rowCell = line2.split(";");
-                Driver d = new Driver();
-                Team t = new Team();
-                d.setName(rowCell[1]);
-                d.setName(rowCell[2]);
-                em.persist(d);
-                em.persist(new Team(rowCell[0]));
-                /*List<Driver> driver = this.em.createNamedQuery("Driver.getDriverByName", Driver.class)
-                        .setParameter("NAME", rowCell[1])
-                        .setParameter("NAME", rowCell[2])
-                        .getResultList();
-                Driver currentDriver;
-                /*if (driver.size() != 1) {
-                    currentDriver = new Driver(currentDriver.setName(rowCell[1]));
-                    em.persist(currentDriver);
-                } else {
-                    currentDriver = driver.get(0);
-                }*/
-            }
+        URL url = Thread.currentThread().getContextClassLoader().getResource(teamFileName);
+        try (Stream<String> stream = Files.lines(Paths.get(url.getPath()), StandardCharsets.UTF_8)) {
+            stream.skip(1)
+                    .map((String s) -> s.split(";"))
+                    .forEach(this::persistTeamAndDrivers);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    // end::readTeamsAndDrivers[]
 
     /**
      * Es wird überprüft ob es das übergebene Team schon in der Tabelle F1_TEAM gibt.
@@ -120,10 +103,21 @@ public class InitBean {
      *
      * @param line String-Array mit den einzelnen Werten der csv-Datei
      */
-
+    // tag::persistTeamAndDrivers[]
     private void persistTeamAndDrivers(String[] line) {
-
+        Team team = null;
+        try {
+            team = em.createNamedQuery("Team.findByName", Team.class)
+                    .setParameter("NAME", line[0])
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            team = new Team(line[0]);
+            em.persist(team);
+        }
+        em.persist(new Driver(line[1], team));
+        em.persist(new Driver(line[2], team));
     }
+    // end::persistTeamAndDrivers[]
 
 
 }

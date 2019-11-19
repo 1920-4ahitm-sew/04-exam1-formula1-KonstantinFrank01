@@ -1,0 +1,52 @@
+= Testdokumentation
+
+== Aufgabe 1: Import CSV
+
+----
+try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/teams.csv")));
+            br.readLine();
+            String line2;
+            while ((line2 = br.readLine()) != null) {
+                String[] rowCell = line2.split(";");
+                Driver d = new Driver();
+                Team t = new Team();
+                d.setName(rowCell[1]);
+                d.setName(rowCell[2]);
+                em.persist(d);
+                em.persist(new Team(rowCell[0]));
+                /*List<Driver> driver = this.em.createNamedQuery("Driver.getDriverByName", Driver.class) <1>
+                        .setParameter("NAME", rowCell[1])
+                        .setParameter("NAME", rowCell[2])
+                        .getResultList();
+                Driver currentDriver;
+                /*if (driver.size() != 1) {
+                    currentDriver = new Driver(currentDriver.setName(rowCell[1]));
+                    em.persist(currentDriver);
+                } else {
+                    currentDriver = driver.get(0);
+                }*/
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+----
+
+Ich habe eine andere Variante versucht, weil ich mit der schon geübt habe, bevor die Empfehlung von Ihnen kam Variante 4 zu verwenden.
+Ich habe die Daten auch nicht an die Methode "persistTeamAndDrivers" weitergegeben sondern versucht die Daten sofort zu speichern.
+Auch das richtige Splitten auf die zwei verschiedenen Tabellen in der Datenbank ist mir nicht richtig gelungen, auch wenn ich einen richtigen Ansatz (named query) (1) hatte
+auf den ich leider nicht genug vertraut hatte.
+
+Hier der verbesserte Code:
+
+[source, java]
+----
+include::src/main/java/at/htl/formula1/control/InitBean.java[tags=readTeamsAndDrivers]
+----
+
+Die Methode persistTeamAndDrivers sollte wie folgt aussehen:
+
+[source, java]
+----
+include::src/main/java/at/htl/formula1/control/InitBean.java[tags=persistTeamAndDrivers]
+----
