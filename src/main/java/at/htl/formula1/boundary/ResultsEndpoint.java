@@ -14,16 +14,33 @@ import java.util.List;
 @Path("results")
 public class ResultsEndpoint {
 
+    @PersistenceContext
+    EntityManager em;
 
     /**
      * @param name als QueryParam einzulesen
      * @return JsonObject
      */
+    // tag::getPointsSumForDriver[]
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     public JsonObject getPointsSumOfDriver(
-            String name
+            @QueryParam("name") String name
     ) {
-        return null;
+        Long points = em
+                .createNamedQuery("Result.sumPointsForDriver", Long.class)
+                .setParameter("NAME", name)
+                .getSingleResult();
+        Driver driver = em
+                .createNamedQuery("Driver.getDriverByName", Driver.class)
+                .setParameter("NAME", name)
+                .getSingleResult();
+        return Json.createObjectBuilder()
+                .add("driver", driver.getName())
+                .add("points", points)
+                .build();
     }
+    // end::getPointsSumForDriver[]
 
     /**
      * @param id des Rennens
