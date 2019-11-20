@@ -13,6 +13,7 @@ import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.LinkedList;
 import java.util.List;
 
 @Path("results")
@@ -82,5 +83,13 @@ public class ResultsEndpoint {
         List<Driver> drivers = em
                 .createNamedQuery("Driver.getDriver", Driver.class)
                 .getResultList();
+        List<String[]> driversWithPoints = new LinkedList<>();
+        for (Driver driver : drivers) {
+            Long points = em.createNamedQuery("Result.getPoints", Long.class)
+                    .setParameter("ID", driver)
+                    .getSingleResult();
+            driversWithPoints.add(new String[]{driver.toString(), "" + points});
+        }
+        return driversWithPoints;
     }
 }
