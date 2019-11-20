@@ -12,15 +12,26 @@ import javax.ws.rs.Path;
 @Table(name = "F1_RESULT")
 @NamedQueries({
         @NamedQuery(
-                name = "Result.winnerOfRace",
-                query = "select r from Result r"
+                name = "Result.getDriverId",
+                query = "select r.id from Result r where r.id = :ID"
         ),
         // tag::sumQuery[]
         @NamedQuery(
                 name = "Result.sumPointsForDriver",
                 query = "select sum(r.points) from Result r where r.driver.name = :NAME"
-        )
+        ),
         // end::sumQuery[]
+        @NamedQuery(
+                name = "Result.getWinnerOfRace",
+                query = "select re.driver from Result re where re.position = 1 and " +
+                        "re.race = (select ra.id from Race ra where ra.country like :COUNTRY)"
+        ),
+        @NamedQuery(
+                name = "Result.racesWonByTeam",
+                query = "select r.race from Result r where r.position = 1 " +
+                        "and r.driver in (select distinct d.id from Driver d " +
+                        "where d.team = (select distinct t.id from Team t where t.name = :TEAM))"
+        )
 })
 public class Result {
 

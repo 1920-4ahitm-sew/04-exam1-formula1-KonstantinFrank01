@@ -132,3 +132,9 @@ Das sieht dann wie folgt aus:
 ----
 include::src/main/java/at/htl/formula1/boundary/ResultsEndpoint.java[tags=getPointsSumForDriver]
 ----
+
+== Aufgabe 4: : Sieger eines bestimmten Rennens
+
+Diese Aufgabe konnte ich leider auch nicht lösen.
+
+Zuerst muss eine NamedQuery erstellt werden

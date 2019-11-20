@@ -18,6 +18,10 @@ import javax.persistence.*;
         @NamedQuery(
                 name = "Driver.sumOfPoints",
                 query = "select d,sum(r.points) from Driver d, Result r"
+        ),
+        @NamedQuery(
+                name = "Driver.getDriver",
+                query = "select d from Driver d"
         )
 })
 public class Driver {
