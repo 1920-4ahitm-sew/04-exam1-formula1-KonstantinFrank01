@@ -31,6 +31,10 @@ import javax.ws.rs.Path;
                 query = "select r.race from Result r where r.position = 1 " +
                         "and r.driver in (select distinct d.id from Driver d " +
                         "where d.team = (select distinct t.id from Team t where t.name = :TEAM))"
+        ),
+        @NamedQuery(
+                name = "Result.getPoints",
+                query = "select sum(r.points) from Result r where r.driver = :ID"
         )
 })
 public class Result {
