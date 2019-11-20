@@ -35,7 +35,7 @@ try {
 
 Ich habe eine andere Variante versucht, weil ich mit der schon geübt habe, bevor die Empfehlung von Ihnen kam Variante 4 zu verwenden.
 Ich habe die Daten auch nicht an die Methode "persistTeamAndDrivers" weitergegeben sondern versucht die Daten sofort zu speichern.
-Auch das richtige Splitten auf die zwei verschiedenen Tabellen in der Datenbank ist mir nicht richtig gelungen, auch wenn ich einen richtigen Ansatz (named query) (1) hatte
+Auch das richtige Splitten auf die zwei verschiedenen Tabellen in der Datenbank ist mir nicht richtig gelungen, auch wenn ich einen richtigen Ansatz (named query) <1> hatte
 auf den ich leider nicht genug vertraut hatte.
 
 Hier der verbesserte Code:
@@ -108,6 +108,8 @@ Der verbesserte Code der Methode persistResult(JsonArray resultsJson) sieht wie 
 include::src/main/java/at/htl/formula1/boundary/ResultsRestClient.java[tags=persistResults]
 ----
 
+*Die folgenden Aufgaben konnte ich leider nicht lösen*
+
 == Aufgabe 3: Gesamtpunkte eines Fahrers
 
 Hierzu bin ich gar nicht mehr gekommen, weil ich keine Daten in der Tabelle Result hatte.
@@ -135,6 +137,145 @@ include::src/main/java/at/htl/formula1/boundary/ResultsEndpoint.java[tags=getPoi
 
 == Aufgabe 4: : Sieger eines bestimmten Rennens
 
-Diese Aufgabe konnte ich leider auch nicht lösen.
+Um diese Aufgabe zu lösen muss zuerst die Methode erstellt werden.
 
-Zuerst muss eine NamedQuery erstellt werden
+[source,java]
+----
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("winner/{country}")
+    public Response findWinnerOfRace(@PathParam("country") String country) {
+
+    }
+----
+
+Dann muss man eine Query in der Klasse Result hinzufügen, die den Driver zurückgibt, der auf Position 1
+gelandet ist und überprüft ob das mitgegebene Land übereinstimmt.
+
+[source,java]
+----
+@NamedQuery(
+name = "Result.getWinnerOfRace",
+query = "select re.driver from Result re where re.position = 1 and " +
+                        "re.race = (select ra.id from Race ra where ra.country like :COUNTRY)"
+)
+----
+
+In der Klasse im Endpoint wird nun nach der ID des Siegers eines bestimmten Rennens gesucht
+und mit dieser ID, dann einer Objekt der Klasse Driver erstellt, welches zurückgegeben wird.
+
+So sieht die fertige Methode im Endpoint aus:
+
+[source,java]
+----
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("winner/{country}")
+    public Response findWinnerOfRace(@PathParam("country") String country) {
+        Long driverId = em.createNamedQuery("Result.getWinnerOfRace", Driver.class)
+                .setParameter("COUNTRY", country)
+                .getSingleResult()
+                .getId();
+        Driver winner = em.find(Driver.class, driverId);
+        return Response.ok(winner).build();
+    }
+----
+
+== Aufgabe 5: Liste der Rennen, die ein Team gewonnen hat
+
+Auch hier muss man zuerst die Methode erstellen.
+
+[source,java]
+----
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("raceswon")
+    public List<Race> racesWonByTeam(@QueryParam("team") String team) {
+
+    }
+----
+
+Der nächste Schritt erfolgt wieder mit dem erstellen der NamedQuery.
+Hier werden alle gewonnenen Rennen, des mitgegebenen Teams zurückgegeben.
+
+[source,java]
+----
+@NamedQuery(
+                name = "Result.racesWonByTeam",
+                query = "select r.race from Result r where r.position = 1 " +
+                        "and r.driver in (select distinct d.id from Driver d " +
+                        "where d.team = (select distinct t.id from Team t where t.name = :TEAM))"
+        )
+----
+
+Zum Schluss wird die zuvor erstellte Methode racesWonByTeam(@QueryParam("team") String team) implementiert.
+Hier werden die Ergebnisse der Query in eine Liste von Races geschrieben und anschließend returned.
+
+[source,java]
+----
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("raceswon")
+    public List<Race> racesWonByTeam(@QueryParam("team") String team) {
+        List<Race> wonRaces = em.createNamedQuery("Result.racesWonByTeam", Race.class)
+                .setParameter("TEAM", team)
+                .getResultList();
+        return wonRaces;
+    }
+----
+
+== Aufgabe 6 (für Spezialisten): Liste aller Fahrer mit ihren Punkten
+
+Wieder beginnt man mit dem Erstellen der Methode.
+
+[source,java]
+----
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("all")
+    public List<String[]> allDriversWithPoints() {
+
+    }
+----
+
+Um diese Aufgabe zu lösen müssen diesmal zwei Querys implementiert werden.
+
+[source, java]
+----
+@NamedQuery(
+                name = "Driver.getDriver",
+                query = "select d from Driver d"
+        )
+----
+
+[source,java]
+----
+@NamedQuery(
+                name = "Result.getPoints",
+                query = "select sum(r.points) from Result r where r.driver = :ID"
+        )
+----
+
+Um die Aufgabe nun zu lösen muss man die Methode richtig implementieren.
+Zuerst erstellt man eine List vom Typ Driver und speichert alle Driver hinein, diese werden von der Query zurückgegeben.
+Als nächstes erstellt man eine List vom Typ String-Array.
+Jetzt wird mit Hilfe einer For-Schleife durch die Liste drivers durchiteriert.
+Innerhalb der For-Schleife erstellt man eine Variable points vom Typ Long, in die das Ergebnis der zweiten Query gespeichert wird.
+Am Ende fügt man ein neues Objekt zur Liste hinzu.
+Außerhalb der Schleife wird diese Liste mit den String-Arrays returned.
+
+[source,java]
+----
+List<Driver> drivers = em
+                .createNamedQuery("Driver.getDriver", Driver.class)
+                .getResultList();
+        List<String[]> driversWithPoints = new LinkedList<>();
+        for (Driver driver : drivers) {
+            Long points = em.createNamedQuery("Result.getPoints", Long.class)
+                    .setParameter("ID", driver)
+                    .getSingleResult();
+            driversWithPoints.add(new String[]{driver.toString(), "" + points});
+        }
+        return driversWithPoints;
+----
+
